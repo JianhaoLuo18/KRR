@@ -1,0 +1,348 @@
+\documentclass[a4paper]{article}
+
+\bibliographystyle{elsarticle-num}
+\usepackage{longtable, caption, listings, xcolor, fancyvrb}
+\usepackage{subcaption}
+\usepackage{fixltx2e}
+\usepackage{amssymb}
+\usepackage{amsmath}
+\usepackage[margin=1.5in, foot=.25in]{geometry}
+\usepackage[labelformat=parens,labelsep=quad,skip=4pt]{caption}
+\usepackage{graphicx}
+\usepackage[makeroom]{cancel}
+\usepackage{enumitem}
+\usepackage[colorlinks]{hyperref}
+\setlength{\belowcaptionskip}{\baselineskip}
+
+\fvset{frame=single, framesep=2mm,fontfamily=courier,fontsize=\scriptsize, numbers=left,framerule=.3mm,numbersep=2mm,commandchars=\\\{\}}
+
+
+% \lstset{frame=, basicstyle={\footnotesize\ttfamily}, breaklines=true, postbreak=\mbox{\textcolor{red}{$\hookrightarrow$}\space}, }
+
+\graphicspath{ {images/} }
+
+%-----------------------------------------BEGIN DOC----------------------------------------
+
+\begin{document}
+
+\title{
+KRR Project - Documentation {\large\linebreak\\}}
+\author{
+Dmytro Narepekha\\[0.1cm]
+Jianhao Luo\\[0.1cm]
+Suzzane Abiri\\[0.1cm]
+Sabrila Trifebi Shina\\[0.1cm]
+Warsaw University of Technology\\
+Faculty of Computer Science and Information Systems\\
+}
+\date{\today}
+\maketitle
+
+\begin{abstract}
+The aim of the task was to define an action description language $\mathcal{ADL_{AGP}}$ and corresponding query language $\mathcal{QL_{AGP}}$ that will allow describing a specific group of dynamic systems that takes into account agent-action-program related aspects. 
+  Accordingly, this contribution consists of two parts - the theoretical description of the task and the documentation of its practical implementation. 
+  In the first part, the introduction provides a brief overview of the task, including the assumptions applied to the corresponding group of dynamic systems. Then, the action description language is defined by means of its syntax and semantics. 
+  Following that, the query language is discussed in terms of proposed queries and their satisfiability conditions. 
+  Lastly, the theory is concluded with descriptions of various examples that provide an understanding of how the proposed languages can be applied in practice. 
+  The second part focuses on the description of the technical aspects of the implemented solution -- i.e. used technology, implemented interface and the performed tests. 
+\end{abstract}
+
+\tableofcontents\label{c}
+\newpage
+
+\section{Theoretical description}
+\subsection{Introduction}
+Let \emph{DS\textsubscript{AGP}} be a class of dynamic systems that are the primary focus of this task. \emph{DS\textsubscript{AGP}} fulfills the following assumptions: 
+\begin{enumerate}[label=A{{\arabic*}}., leftmargin=*]
+    \item \textbf{Inertia law} -- the observed changes, after performing a given action, are only the ones that are directly or indirectly induced by the aforementioned action 
+    \item \textbf{Complete information about all actions and all fluents} -- there are no unknown effects of the actions 
+    \item \textbf{Determinism} -- there is only one possible outcome of an action 
+    \item \textbf{Only sequential actions are allowed} -- the parallel actions are out of consideration 
+    \item \textbf{Characteristics of actions}:
+        \begin{itemize}
+            \item[] $\vartriangleright$ precondition (a set of literals) reflecting a condition under which the action starts and leads to some effect. If a precondition does not hold, then the action is executed with an empty effect
+            \item[] $\vartriangleright$ postcondition (a set of literals) reflecting the effect of the action
+            \item[] $\vartriangleright$ agent who performs an action
+        \end{itemize}
+    \item \textbf{State-Dependent Action Constraints for Agents} -- In some states (specified by a propositional formula) some actions cannot be performed by specific agents. 
+    \item \textbf{Partial descriptions} -- Partial descriptions of any state of the system (including the initial one) are allowed.
+\end{enumerate}
+\subsubsection{Task description}
+The task of this project is stated as follows:
+\begin{quote}
+\itshape
+Define an action description language \emph{ADL\textsubscript{AGP}} for representing dynamic systems of the class specified above, and define the corresponding query language \emph{QL\textsubscript{AGP}} which would allow getting answers for the following queries:
+\begin{enumerate}[label=Q{{\arabic*}}.]
+    \item Does a condition $\gamma$ (set of literals) hold after performing a program $\mathcal{P}$?
+    \item Is an agent \textit{ag} active in executing a program $\mathcal{P}$?
+\end{enumerate}
+\end{quote}
+%
+\subsection{Action description language}
+%
+Let $\mathcal{ADL_{AGP}}$ be an action description language defined to represent a class of dynamic systems that satisfy the assumptions outlined in the previous section. The following terminology will be used to specify the syntax of the $\mathcal{ADL_{AGP}}$ language: \\~\\
+$\Upsilon = (\mathcal{F}, \mathcal{A}_c, \mathcal{A}_g)$ - signature of the language, where:
+\begin{itemize}
+    \item[-] $\mathcal{F}$ is a set of fluents
+    \item[-] $\mathcal{A}_c$ is a set of actions
+    \item[-] $\mathcal{A}_g$ is a set of agents
+\end{itemize}
+$\bar{f}$ - literal corresponding to the fluent $f \in \mathcal{F}$ or its negation $\neg f$ \\[0.5\baselineskip]
+$\mathcal{P} = ((A_1, X_1),\dotsc,(A_n, X_n))$ - program, sequence of actions corresponding their agents.
+%
+\subsubsection{Syntax} \label{statements}
+%
+Two types of statements were defined for the $\mathcal{ADL_{AGP}}$ language. The first ones are the \textbf{value statements}. They describe the state (more precisely, fluents) that initially holds in the system or holds in the system after performing a particular sequence of actions. The second types of statement are the \textbf{effect statements}. They describe how the system's state changes after performing a given action, namely, what state will result from performing a given action under specified preconditions.
+\\ \\
+\textbf{\textit{1. Value statements}}
+\\ \\
+It is important to stress that the second value statement is, in fact, an abbreviation of the first one (i.e. it is not a separate value statement).
+\begin{enumerate}
+  \item $\Bar{f_1},\dotsc,\Bar{f_k}$ \textbf{after} $(A_1, X_1),\dotsc,(A_n, X_n)$ (where $f_1,\dotsc,f_k\in\mathcal{F}$, $A_1,\dotsc,A_n \in \mathcal{A}_c$, $X_1,\dotsc,X_n \in \mathcal{A}_g$) \\[0.5\baselineskip]
+    Meaning: $\Bar{f_1},\dotsc,\Bar{f_k}$ holds after performing a set of actions $(A_1, X_1),\dotsc,(A_n, X_n)$ in the initial state
+    \item \textbf{initially} $\Bar{f_1},\dotsc,\Bar{f_k}$ \\[0.5\baselineskip]
+    Meaning: $\Bar{f_1},\dotsc,\Bar{f_k}$ holds in the initial state
+\end{enumerate}
+\textbf{\textit{2. Effect statements}}
+\\ \\
+Similarly to the previous section, the second effect statement is an abbreviation of the first one. 
+The second emphasizes that the action is executed with no specific preconditions that have to be met before its execution.
+\begin{enumerate}
+  \item A \textbf{causes} $\Bar{f_1},\dotsc,\Bar{f_k}$ by agent \textbf{X} if $\Bar{g_1},\dotsc,\Bar{g_k}$ where $f_1,\dotsc,f_k\in\mathcal{F}$, $g_1,\dotsc,g_k\in\mathcal{F}$ $A\in\mathcal{A}_c$ $a\in\mathcal{A}_g$\\[0.5\baselineskip]
+    Meaning: If A is performed in any state satisfying $\Bar{f_1},\dotsc,\Bar{f_k}$ by agent a, then in the resulting state $\Bar{f_1},\dotsc,\Bar{f_k}$ holds. 
+    \item A by agent \textbf{X} \textbf{causes}$\Bar{f_1},\dotsc,\Bar{f_k}$ where $f_1,\dotsc,f_k\in\mathcal{F}$\\[0.5\baselineskip]
+    Meaning: The performance of action A by agent a leads to the state for which $\alpha$ holds 
+\end{enumerate}
+%
+\subsubsection{Semantics}
+%
+\textbf{\textit{1. Transition function}}
+\\ \\
+A \textbf{transition function} is defined as a mapping $\Psi\colon\mathcal{A}_c\times\mathcal{A}_g\times\Sigma\rightarrow\Sigma$. \\
+$\Psi(A,X,\sigma)$ defined for any $A\in\mathcal{A}_c$, for any $\sigma\in\Sigma$ and for any $X\in\mathcal{A}_g$ gives a resulting state after performing the action $A$ from the state $\sigma$ by agent X. \\[0.5\baselineskip]
+The aforementioned function can also be generalized to the mapping $\Psi^\ast\colon(\mathcal{A}_c \times \mathcal{A}_g)^\ast\times\Sigma\rightarrow\Sigma$ in a following way:
+\begin{enumerate}
+    \item $\Psi^\ast(\epsilon,\sigma)=\sigma$
+    \item $\Psi^\ast(((A_1,X_1),\dotsc,(A_n,X_n)),\sigma)=\Psi((A_n,X_n),\Psi^\ast(((A_1,X_1),\dotsc,(A_{n-1},X_{n-1})),\sigma))$
+\end{enumerate}
+However, for the sake of simplification, the $\Psi^\ast$ will be further denoted as $\Psi$.
+The \textbf{structure} of a language $\mathcal{ADL_{CST}}$ is a pair $S=(\Psi,\sigma_0)$ where $\Psi$ is a transition function and $\sigma_0\in\Sigma$ is the initial state. \\[0.5\baselineskip]
+A \textbf{state} is defined as a mapping $\sigma\colon\mathcal{F}\rightarrow\{0, 1\}$, for any $f\in\mathcal{F}$. \\
+If $\sigma(f)=1$, then it means that $f$ holds in the state $\sigma$ and it is denoted by $\sigma\models f$. \\
+If $\sigma(f)=0$, then it means that $f$ doesn't hold in the state $\sigma$ and it is denoted $\sigma\models\neg f$. \\
+Furthermore, let $\Sigma$ denote a set of all states. 
+\\ \\
+\textbf{\textit{2. Satisfiability of language statements}}
+\\ \\
+Let $S=(\Psi, \sigma_0)$ be a structure for a language $\mathcal{ADL_{AGP}}$. A statement $s$ is true in $S$ (denoted by $S\models s$), if and only if:
+\begin{enumerate}
+    \item $s$ is of the form: $\Bar{f_1},\dotsc,\Bar{f_k}$ \textbf{after} $(A_1, X_1),\dotsc,(A_n, X_n)$ \\[0.5\baselineskip]
+      $S\models s$ if and only if for an initial state $\sigma_0\in\Sigma$ and the set of actions $A_1,\dotsc,A_n\in\mathcal{A}_c$, the set of agents $X_1,\dotsc,X_n\in\mathcal{A}_g$ the following holds: 
+    $\Psi^\ast(((A_1,X_1),\dotsc,(A_n,X_n)),\sigma_0)\models\Bar{f_1},\dotsc,\Bar{f_k}$
+    \item $s$ is of the form: A \textbf{causes} $\Bar{f_1},\dotsc,\Bar{f_k}$  by agent X if $\Bar{g_1},\dotsc,\Bar{g_k}$   \\[0.5\baselineskip]
+    $S\models s$ if and only if for every state $\sigma\in\Sigma$ such that $\sigma\models\Bar{g_1},\dotsc,\Bar{g_k}$ and the action $A\in\mathcal{A}_c$, the agent $X\in\mathcal{A}_g$, the following holds: 
+    $\Psi^\ast(A, X,\sigma)\models\Bar{f_1},\dotsc,\Bar{f_k}$ 
+\end{enumerate}
+\textbf{\textit{3. Model of a language}}
+\\ \\
+Let D be an action domain (non-empty set of value or effect statements) in the language $\mathcal{ADL_{AGP}}$ over a signature $\Upsilon = (\mathcal{F}, \mathcal{A}_c, \mathcal{A}_g)$. 
+A structure for this language $S=(\Psi,\sigma_0)$ is a model of D if and only if:
+\begin{enumerate}
+    \item for every $s \in D$, $S \models s$
+    \item for every $A\in\mathcal{A}_c$, for every $\Bar{f_1},\dotsc,\Bar{f_k},g_1,\dotsc,g_k\in\mathcal{F}$, for every $\sigma\in\Sigma$, for every $X\in\mathcal{A_g}$ if one of the following conditions holds:
+    \begin{enumerate}[label=(\alph*)]
+      \item there is a statement in D of the form A \textbf{causes} $\Bar{f_1},\dotsc,\Bar{f_k}$ by agent X if $\Bar{g_1},\dotsc,\Bar{g_k}$ such that $\sigma \cancel{\models} \Bar{f_i}$ for some $i = 1,\dotsc,k$
+        \item D does not contain an effect statement A \textbf{causes} $\Bar{f}$ if $\Bar{g_1},\dotsc,\Bar{g_k}$ 
+    \end{enumerate}
+    then $\sigma\models \Bar{f_1},\dotsc,\Bar{f_k}$ if and only if $\Psi(A,a,\sigma) \models \Bar{f_1},\dotsc,\Bar{f_k}$
+\end{enumerate}
+%
+\subsection{Query Language}
+%
+Let $\mathcal{QL_{AGP}}$ be the query language corresponding to the $\mathcal{ADL_{AGP}}$. 
+%
+\subsubsection{Query statements}
+%
+There were two types of queries defined for $\mathcal{QL_{CST}}$, namely the \textbf{value queries} and \textbf{active queries}. The value queries answer the question of whether a given condition is satisfied after performing a sequence of actions. The active queries evaluate if a given agent  is active for execution of sequence of actions.
+\\[0.5\baselineskip]
+\textbf{\textit{1. Value queries}}
+\\[0.5\baselineskip]
+The value query is defined in the following way:\\[0.5\baselineskip]
+ $\Bar{f_1},\dotsc,\Bar{f_k}$ \textbf{after} $(A_1, X_1),\dotsc,(A_n, X_n)$ \\[0.5\baselineskip] 
+Meaning: does the condition $\Bar{f_1},\dotsc,\Bar{f_k}$ hold after executing the sequence of actions $(A_1, X_1),\dotsc,(A_n, X_n)$
+\\\\
+\textbf{\textit{2. Active queries}}
+\\[0.5\baselineskip]
+\textbf{active} X in $(A_1, X_1),\dotsc,(A_n, X_n)$\\[0.5\baselineskip] 
+Meaning: is the agent X active in the program $(A_1, X_1),\dotsc,(A_n, X_n)$?  \\[0.5\baselineskip]
+
+\subsubsection{Satisfiability of queries}
+Let $D$ be an action domain. A query $Q$ is a consequence of $D$, denoted by $D \models Q$, if and only if $Q$ is true in every model S=$(\Psi, \sigma_0)$ of $D$:
+\begin{enumerate}
+  \item Q is of the form: $\Bar{f_1},\dotsc,\Bar{f_k}$ \textbf{after} $(A_1, X_1),\dotsc,(A_n, X_n)$ \\[0.5\baselineskip] 
+    $D \models Q$ if and only if for any model $S=(\Psi,\sigma_0)$ of $D$, 
+   the following holds $\Psi(((A_1,X_1),\dotsc,(A_n,X_n)),\sigma_0)\models \Bar{f_1},\dotsc,\Bar{f_k}$ 
+  \item Q is of the form: \textbf{active} X in $(A_1, X_1),\dotsc,(A_n, X_n)$\\[0.5\baselineskip] 
+    $D \models Q$ if and only if for any model $S=(\Psi,\sigma_0)$ of $D$ 
+    there exists i between 1 and n, such that $\sigma_i \neq \Psi(A_i, X_i, \sigma_i-1)$ and where $\Psi(A_{i+1}, X_{i+1}, \sigma_i) = \sigma_{i+1}$
+\end{enumerate}
+\section{Examples of dynamic systems}
+\subsection{Shipping orders}
+There is an order that needs to be processed and delivered to the customer. The status of an order can be described by the following literals: received, packed, shipped, delivered and empty.
+Initially, the order is neither received nor packed, nor shipped, not delivered, and the shipping box for an order is empty.  
+Placing an order makes it received. 
+Packing an order makes it packed and also the shipping box becomes non-empty.
+Shipping an order makes it shipped and finally delivering it makes it delivered.
+There are two agents, operator and courier 
+The placing action can be only executed by operator, other it will have no effect if it's executed by other agents.
+The packaing action can be executed by both operator and courier.
+The shipping action can be executed only by courier, if executed by other agents, there will be no effect.
+\\
+The set of all considered states in this scenario is defined as $\Sigma = \{{\sigma_0, \sigma_1, \sigma_2, \sigma_3, \sigma_4\}}$, where:
+\begin{center}
+$\sigma_0 = \{${$\neg$received, $\neg$packed, $\neg$shipped, $\neg$delivered, empty}\} \\[0.1\baselineskip]
+$\sigma_1 = \{${received, $\neg$packed, $\neg$shipped, $\neg$delivered, empty}\} \\[0.1\baselineskip]
+$\sigma_2 = \{${received, packed, $\neg$shipped, $\neg$delivered, $\neg$empty}\} \\[0.1\baselineskip]
+$\sigma_3 = \{${received, packed, shipped, $\neg$delivered, $\neg$empty}\} \\[0.1\baselineskip]
+$\sigma_4 = \{${received, packed, hipped, delivered, $\neg$empty}\}
+\end{center}
+The structure of the scenario is as follows:
+\begin{center}
+\textbf{initially} $\neg$\textit{received} \\[0.1\baselineskip]
+\textbf{initially} $\neg$\textit{packed} \\[0.1\baselineskip]
+\textbf{initially} $\neg$\textit{shipped} \\[0.1\baselineskip]
+\textbf{initially} $\neg$\textit{delivered} \\[0.1\baselineskip]
+\textbf{initially} \textit{empty} \\[0.5\baselineskip]
+\textit{Place} \textbf{causes} \textit{received} \textbf{if} $\neg$\textit{received} \textbf{cost} 1 \\[0.1\baselineskip]
+\textit{Pack} \textbf{causes} \textit{packed} \textbf{if} \textit{received}, $\neg$\textit{packed} \textbf{cost} 2 \\[0.1\baselineskip]
+\textit{Pack} \textbf{causes} $\neg$\textit{empty} \textbf{if} \textit{received}, $\neg$\textit{packed} \textbf{cost} 0 \\[0.1\baselineskip]
+\textit{Ship} \textbf{causes} \textit{shipped} \textbf{if} \textit{packed}, $\neg$\textit{shipped} \textbf{cost} 3 \\[0.1\baselineskip]
+\textit{Deliver} \textbf{causes} \textit{delivered} \textbf{if} \textit{shipped}, $\neg$\textit{delivered} \textbf{cost} 2 \\[0.5\baselineskip]
+\end{center}
+Hence, the following states are considered in this case: \\[0.5\baselineskip] 
+$\Psi((\text{Place},1),\sigma_0)$ = $\sigma_1$ \\[0.1\baselineskip] 
+$\Psi((\text{Pack},2),\sigma_0)$ = $\sigma_0$ \\[0.1\baselineskip] 
+$\Psi((\text{Ship},3),\sigma_0)$ = $\sigma_0$ \\[0.1\baselineskip] 
+$\Psi((\text{Deliver},2),\sigma_0)$ = $\sigma_0$ \\[0.7\baselineskip]
+$\Psi((\text{Place},1),\sigma_1)$ = $\sigma_1$ \\[0.1\baselineskip] 
+$\Psi((\text{Pack},2),\sigma_1)$ = $\sigma_2$ \\[0.1\baselineskip] 
+$\Psi((\text{Ship},3),\sigma_1)$ = $\sigma_1$ \\[0.1\baselineskip] 
+$\Psi((\text{Deliver},2),\sigma_1)$ = $\sigma_1$ \\[0.7\baselineskip] 
+$\Psi((\text{Place},1),\sigma_2)$ = $\sigma_2$ \\[0.1\baselineskip] 
+$\Psi((\text{Pack},2),\sigma_2)$ = $\sigma_2$ \\[0.1\baselineskip] 
+$\Psi((\text{Ship},3),\sigma_2)$ = $\sigma_3$ \\[0.1\baselineskip] 
+$\Psi((\text{Deliver},2),\sigma_2)$ = $\sigma_2$ \\[0.7\baselineskip] 
+$\Psi((\text{Place},1),\sigma_3)$ = $\sigma_3$ \\[0.1\baselineskip] 
+$\Psi((\text{Pack},2),\sigma_3)$ = $\sigma_3$ \\[0.1\baselineskip] 
+$\Psi((\text{Ship},3),\sigma_3)$ = $\sigma_3$ \\[0.1\baselineskip] 
+$\Psi((\text{Deliver},2),\sigma_3)$ = $\sigma_4$ \\[0.7\baselineskip] 
+$\Psi((\text{Place},1),\sigma_4)$ = $\sigma_4$ \\[0.1\baselineskip] 
+$\Psi((\text{Pack},2),\sigma_4)$ = $\sigma_4$ \\[0.1\baselineskip] 
+$\Psi((\text{Ship},3),\sigma_4)$ = $\sigma_4$ \\[0.1\baselineskip] 
+$\Psi((\text{Deliver},2),\sigma_4)$ = $\sigma_4$ \\[0.7\baselineskip] 
+Similarly, as in the previous scenario, let us demonstrate an example of asking queries using the structure of the query language $\mathcal{QL_{CST}}$. Assume, that the initial state is $\sigma_0$ and the program $\mathcal{P}$ = (\textit{Place}, \textit{Pack}, \textit{Ship}, \textit{Deliver}). Let us consider the following query statements:
+\begin{enumerate}
+    \item $\neg$\textit{delivered} \textbf{after} (\textit{Place}, \textit{Pack}, \textit{Ship}, \textit{Deliver})
+    \item \textbf{sufficient} 10 \textbf{in} (\textit{Place}, \textit{Pack}, \textit{Ship}, \textit{Deliver})
+\end{enumerate}
+The program execution will consist of the following transitions: \\[0.5\baselineskip]
+$\Psi((\text{Place},1),\sigma_0)$ = $\sigma_1$ \\[0.1\baselineskip]
+$\Psi((\text{Pack},2),\sigma_1)$ = $\sigma_2$ \\[0.1\baselineskip]
+$\Psi((\text{Ship},3),\sigma_2)$ = $\sigma_3$ \\[0.1\baselineskip]
+$\Psi((\text{Deliver},2),\sigma_3)$ = $\sigma_4$ \\[0.7\baselineskip]
+As it can be observed, after the program execution, the state $\sigma_4$ will hold. Due to that, query number one will retrieve a negative response (i.e. \textit{false}), as in the final state \textit{delivered} holds. On the other hand, the second query will respond with \textit{true} as the total cost 8 is smaller than 10.
+\subsubsection{Preparing for holidays}
+A family is preparing for the holidays. Due to the fact that they are traveling by plane, there is a limit on the weight of their luggage. In this regard, packing the next item is associated with some arbitrary cost corresponding to its weight. It is assumed that all necessary items have been packed by the family, and there is still some space available in the luggage. Due to this, they decided to take some additional equipment that would make their trip more entertaining. They considered a laptop, books, or sports equipment. When taking the laptop, the family must also take the charger. It is assumed that initially, the luggage is empty.
+Following, are the states considered in the system $\Sigma = \{{\sigma_0, \sigma_1, \sigma_2, \sigma_3, \sigma_4, \sigma_5, \sigma_6, \sigma_7, \sigma_8, \sigma_9\}}$, where:
+\begin{center}
+$\sigma_0$ = \{$\neg$has laptop, $\neg$has charger, $\neg$has books, $\neg$has sports equipment\} \\[0.1\baselineskip]
+$\sigma_1$ = \{$\neg$has laptop, has charger, $\neg$has books, $\neg$has sports equipment\} \\[0.1\baselineskip]
+$\sigma_2$ = \{$\neg$has laptop, has charger, has books, $\neg$has sports equipment\} \\[0.1\baselineskip]
+$\sigma_3$ = \{$\neg$has laptop, has charger, $\neg$has books, has sports equipment\} \\[0.1\baselineskip]
+$\sigma_4$ = \{has laptop, has charger, $\neg$has books, $\neg$has sports equipment\} \\[0.1\baselineskip]
+$\sigma_5$ = \{has laptop, has charger, has books, $\neg$has sports equipment\} \\[0.1\baselineskip]
+$\sigma_6$ = \{has laptop, has charger, $\neg$has books, has sports equipment\} \\[0.1\baselineskip]
+$\sigma_7$ = \{has laptop, has charger, has books, has sports equipment\} \\[0.1\baselineskip]
+$\sigma_8$ = \{$\neg$has laptop, $\neg$has charger, has books, $\neg$has sports equipment\} \\[0.1\baselineskip]
+$\sigma_9$ = \{$\neg$has laptop, $\neg$has charger, has books, has sports equipment\} \\[0.1\baselineskip]
+$\sigma_{10}$ = \{$\neg$has laptop, has charger, has books, has sports equipment\} \\[0.1\baselineskip]
+$\sigma_{11}$ = \{$\neg$has laptop, $\neg$has charger, $\neg$has books, has sports equipment\} \\[0.1\baselineskip]
+\end{center}
+Furthermore, the actions that were taken into account are:
+\begin{enumerate}
+    \item Pack laptop
+    \item Pack books
+    \item Pack sports equipment
+    \item Pack charger
+\end{enumerate}
+The system structure is described in the following way:
+\begin{center}
+    \textbf{initially} $\neg$\textit{has laptop} \\[0.1\baselineskip]
+    \textbf{initially} $\neg$\textit{has charger} \\[0.1\baselineskip]
+    \textbf{initially} $\neg$\textit{has books} \\[0.1\baselineskip]
+    \textbf{initially} $\neg$\textit{has sports equipment} \\[0.1\baselineskip]
+    \textit{Pack laptop} \textbf{causes} \textit{has laptop} \textbf{if} $\neg$\textit{has laptop}, \textit{has charger} \textbf{cost} 10 \\[0.1\baselineskip]
+    \textit{Pack charger} \textbf{causes} \textit{has charger}  \textbf{if} $\neg$\textit{has charger} \textbf{cost} 5 \\[0.1\baselineskip]
+    \textit{Pack books} \textbf{causes} \textit{has books} \textbf{if} $\neg$\textit{has books} \textbf{cost} 15 \\[0.1\baselineskip]
+    \textit{Pack sports equipment} \textbf{causes} \textit{has sports equipment} \textbf{if} $\neg$\textit{has sports equipment} \textbf{cost} 30 \\[0.1\baselineskip]
+\end{center}
+Hence, let us list all possible transitions: \\[0.5\baselineskip] 
+$\Psi((\text{Pack laptop},10),\sigma_0)$ = $\sigma_0$ \\[0.1\baselineskip] 
+$\Psi((\text{Pack charger},5),\sigma_0)$ = $\sigma_1$ \\[0.1\baselineskip] 
+$\Psi((\text{Pack books},15),\sigma_0)$ = $\sigma_8$ \\[0.1\baselineskip] 
+$\Psi((\text{Pack sports equipment},30),\sigma_0)$ = $\sigma_{11}$ \\[0.7\baselineskip]
+$\Psi((\text{Pack laptop},10),\sigma_1)$ = $\sigma_4$ \\[0.1\baselineskip] 
+$\Psi((\text{Pack charger},5),\sigma_1)$ = $\sigma_1$ \\[0.1\baselineskip] 
+$\Psi((\text{Pack books},15),\sigma_1)$ = $\sigma_2$ \\[0.1\baselineskip] 
+$\Psi((\text{Pack sports equipment},30),\sigma_1)$ = $\sigma_3$ \\[0.7\baselineskip]
+$\Psi((\text{Pack laptop},10),\sigma_2)$ = $\sigma_5$ \\[0.1\baselineskip] 
+$\Psi((\text{Pack charger},5),\sigma_2)$ = $\sigma_2$ \\[0.1\baselineskip] 
+$\Psi((\text{Pack books},15),\sigma_2)$ = $\sigma_2$ \\[0.1\baselineskip] 
+$\Psi((\text{Pack sports equipment},30),\sigma_2)$ = $\sigma_{10}$ \\[0.7\baselineskip]
+$\Psi((\text{Pack laptop},10),\sigma_3)$ = $\sigma_6$ \\[0.1\baselineskip] 
+$\Psi((\text{Pack charger},5),\sigma_3)$ = $\sigma_3$ \\[0.1\baselineskip] 
+$\Psi((\text{Pack books},15),\sigma_3)$ = $\sigma_{10}$ \\[0.1\baselineskip] 
+$\Psi((\text{Pack sports equipment},30),\sigma_3)$ = $\sigma_3$ \\[0.7\baselineskip]
+$\Psi((\text{Pack laptop},10),\sigma_4)$ = $\sigma_4$ \\[0.1\baselineskip] 
+$\Psi((\text{Pack charger},5),\sigma_4)$ = $\sigma_4$ \\[0.1\baselineskip] 
+$\Psi((\text{Pack books},15),\sigma_4)$ = $\sigma_5$ \\[0.1\baselineskip] 
+$\Psi((\text{Pack sports equipment},30),\sigma_4)$ = $\sigma_6$ \\[0.7\baselineskip]
+$\Psi((\text{Pack laptop},10),\sigma_5)$ = $\sigma_5$ \\[0.1\baselineskip] 
+$\Psi((\text{Pack charger},5),\sigma_5)$ = $\sigma_5$ \\[0.1\baselineskip] 
+$\Psi((\text{Pack books},15),\sigma_5)$ = $\sigma_5$ \\[0.1\baselineskip] 
+$\Psi((\text{Pack sports equipment},30),\sigma_5)$ = $\sigma_7$ \\[0.7\baselineskip]
+$\Psi((\text{Pack laptop},10),\sigma_6)$ = $\sigma_6$ \\[0.1\baselineskip] 
+$\Psi((\text{Pack charger},5),\sigma_6)$ = $\sigma_6$ \\[0.1\baselineskip] 
+$\Psi((\text{Pack books},15),\sigma_6)$ = $\sigma_7$ \\[0.1\baselineskip] 
+$\Psi((\text{Pack sports equipment},30),\sigma_6)$ = $\sigma_6$ \\[0.7\baselineskip]
+$\Psi((\text{Pack laptop},10),\sigma_7)$ = $\sigma_7$ \\[0.1\baselineskip] 
+$\Psi((\text{Pack charger},5),\sigma_7)$ = $\sigma_7$ \\[0.1\baselineskip] 
+$\Psi((\text{Pack books},15),\sigma_7)$ = $\sigma_7$ \\[0.1\baselineskip] 
+$\Psi((\text{Pack sports equipment},30),\sigma_7)$ = $\sigma_7$ \\[0.7\baselineskip]
+$\Psi((\text{Pack laptop},10),\sigma_8)$ = $\sigma_8$ \\[0.1\baselineskip] 
+$\Psi((\text{Pack charger},5),\sigma_8)$ = $\sigma_2$ \\[0.1\baselineskip] 
+$\Psi((\text{Pack books},15),\sigma_8)$ = $\sigma_8$ \\[0.1\baselineskip] 
+$\Psi((\text{Pack sports equipment},30),\sigma_8)$ = $\sigma_9$ \\[0.7\baselineskip]
+$\Psi((\text{Pack laptop},10),\sigma_9)$ = $\sigma_9$ \\[0.1\baselineskip] 
+$\Psi((\text{Pack charger},5),\sigma_9)$ = $\sigma_{10}$ \\[0.1\baselineskip] 
+$\Psi((\text{Pack books},15),\sigma_9)$ = $\sigma_9$ \\[0.1\baselineskip] 
+$\Psi((\text{Pack sports equipment},30),\sigma_9)$ = $\sigma_9$ \\[0.7\baselineskip]
+$\Psi((\text{Pack laptop},10),\sigma_{10})$ = $\sigma_7$ \\[0.1\baselineskip] 
+$\Psi((\text{Pack charger},5),\sigma_{10})$ = $\sigma_{10}$ \\[0.1\baselineskip] 
+$\Psi((\text{Pack books},15),\sigma_{10})$ = $\sigma_{10}$ \\[0.1\baselineskip] 
+$\Psi((\text{Pack sports equipment},30),\sigma_{10})$ = $\sigma_{10}$ \\[0.7\baselineskip]
+$\Psi((\text{Pack laptop},10),\sigma_{11})$ = $\sigma_{11}$ \\[0.1\baselineskip] 
+$\Psi((\text{Pack charger},5),\sigma_{11})$ = $\sigma_3$ \\[0.1\baselineskip] 
+$\Psi((\text{Pack books},15),\sigma_{11})$ = $\sigma_9$ \\[0.1\baselineskip] 
+$\Psi((\text{Pack sports equipment},30),\sigma_{11})$ = $\sigma_{10}$ \\[0.7\baselineskip]
+Finally, let us demonstrate queries for the above example. Assume, that the initial state is $\sigma_0$ and the program $\mathcal{P}$ = (\textit{Pack sports equipment}, \textit{Pack books}, \textit{Pack laptop}). Let us consider the following query statements:
+\begin{enumerate}
+    \item \textit{has laptop} \textbf{after} (\textit{Pack sports equipment}, \textit{Pack books}, \textit{Pack laptop})
+    \item \textbf{sufficient} 40 \textbf{in} (\textit{Pack sports equipment}, \textit{Pack books}, \textit{Pack laptop})
+\end{enumerate}
+The program execution will consist of the following transitions: \\[0.5\baselineskip]
+$\Psi((\text{Pack sports equipment},30),\sigma_0)$ = $\sigma_{11}$ \\[0.1\baselineskip]
+$\Psi((\text{Pack books},15),\sigma_{11})$ = $\sigma_9$ \\[0.1\baselineskip]
+$\Psi((\text{Pack laptop},10),\sigma_9)$ = $\sigma_9$ \\[0.5\baselineskip]
+It can be noted that the last transition is associated with a cost 10 although the state doesn't change. Due to the fact that preconditions that are required to successfully execute the \emph{Pack laptop} action are not met, the action has empty effects. After the program execution, the last state is, therefore, $\sigma_9$. Hence, the response of the first query will be \textit{false}. The response to the second query will also be \textit{false}, as the total cost of the program execution is 55 which is greater than 40.
+\end{document}
