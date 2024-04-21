@@ -182,202 +182,256 @@ Let $D$ be an action domain. A query $Q$ is a consequence of $D$, denoted by $D 
 \begin{enumerate}
   \item Q is of the form: $\Bar{f_1},\dotsc,\Bar{f_k}$ \textbf{after} $(A_1, X_1),\dotsc,(A_n, X_n)$ \\[0.5\baselineskip] 
     $D \models Q$ if and only if for any model $S=(\Psi,\sigma_0)$ of $D$, 
-   the following holds $\Psi(((A_1,X_1),\dotsc,(A_n,X_n)),\sigma_0)\models \Bar{f_1},\dotsc,\Bar{f_k}$ 
+   the following holds $\Psi(((A_1,X_1),\dotsc,(A_n,X_n)),\sigma_0)\models \Bar{f_i}$ for every i = $1, \dotsc, k$
   \item Q is of the form: \textbf{active} X in $(A_1, X_1),\dotsc,(A_n, X_n)$\\[0.5\baselineskip] 
     $D \models Q$ if and only if for any model $S=(\Psi,\sigma_0)$ of $D$ 
-    there exists i between 1 and n, such that $\sigma_i \neq \Psi(A_i, X_i, \sigma_i-1)$ and where $\Psi(A_{i+1}, X_{i+1}, \sigma_i) = \sigma_{i+1}$
+    there exists i =1, 2, 3 \ldots, j, such that 
+    \begin{enumerate}
+      \item X = $X_i$
+      \item $\sigma_i \neq \sigma_{i-1}$ and where $\sigma_j$ = $\Psi((A_1, X_1),\dotsc,(A_j, X_j),\sigma_0)$ $j = 1, \dotsc, n$     
+    \end{enumerate}
 \end{enumerate}
 \section{Examples of dynamic systems}
-\subsubsection{Shipping orders}
-There is an order that needs to be processed and delivered to the customer. The status of an order can be described by the following literals: received, packed, shipped, delivered and empty. 
-Initially, the order is neither received nor packed, nor shipped, not delivered, and the shipping box for an order is empty.  
-Placing and order makes it received. 
-Packing an order makes it packed and also the shipping box becomes non-empty. 
-Shipping an order makes it shipped and finally delivering it makes it delivered. 
-Each of those aforementioned actions has an associated agent attached in case the initial conditions for performing a specific action are met. \\
-The set of all considered states in this scenario is defined as $\Sigma = \{{\sigma_0, \sigma_1, \sigma_2, \sigma_3, \sigma_4\}}$, where:
-\begin{center}
-$\sigma_0 = \{${$\neg$received, $\neg$packed, $\neg$shipped, $\neg$delivered, empty}\} \\[0.1\baselineskip]
-$\sigma_1 = \{${received, $\neg$packed, $\neg$shipped, $\neg$delivered, empty}\} \\[0.1\baselineskip]
-$\sigma_2 = \{${received, packed, $\neg$shipped, $\neg$delivered, $\neg$empty}\} \\[0.1\baselineskip]
-$\sigma_3 = \{${received, packed, shipped, $\neg$delivered, $\neg$empty}\} \\[0.1\baselineskip]
-$\sigma_4 = \{${received, packed, hipped, delivered, $\neg$empty}\}
-\end{center}
-The Agents to perform in the program are \textbf{Operator}, \textbf{Courier}.
-Operator can only perform actions: \textit{Place}, \textit{Pack}.
-Courier can only perform actions: \textit{Pack}, \textit{Ship}, \textit{Deliver}.
+\subsubsection{Online store Scenario}
+An online store sells housing materials.The following literals can describe the status of the product: ordered, shipped and delivered.
+Initially, the product is neither ordered nor shipped. 
+Purchasing the product makes it ordered, shipping the product makes it shipped, and, lastly, delivering the product makes it delivered. 
+Each action has an associated agent attached if the initial conditions for performing a specific action are met. \\\\
+\begin{tabular}{|l|c|r|}
+\hline
+\textbf{Fluent} & \textbf{literal} & \textbf{nagation} \\ \hline
+$f_1$ & Ordered & $\neg$Ordered \\
+$f_2$ & Shipped & $\neg$Shipped \\
+$f_3$ & Delivered & $\neg$Delivered \\ \hline
+\end{tabular} \\\\
+Actions are defined as:
+\begin{enumerate}
+  \item Purchase
+  \item Ship
+  \item Deliver
+\end{enumerate}
+Agents:
+\begin{enumerate}
+  \item \textbf{Buyer}: Can only perform action: \textbf{Purchase}
+  \item \textbf{Seller}: Can only perform action: \textbf{Ship} and \textbf{Deliver}
+\end{enumerate}
 Agents perform undefined actions will have no effect.
+The set of all considered states in this scenario is defined as: \\\\
+$\Sigma = \{{\sigma_0, \sigma_1, \sigma_2, \sigma_3, \sigma_4, \sigma_5, \sigma_6, \sigma_7\}}$, where:
+\begin{center}
+$\sigma_0 = \{${$\neg$ordered, $\neg$shipped, $\neg$delivered}\} \\[0.1\baselineskip]
+$\sigma_1 = \{${ordered, $\neg$shipped, $\neg$delivered}\} \\[0.1\baselineskip]
+$\sigma_2 = \{${$\neg$ordered, shipped, $\neg$delivered}\} \\[0.1\baselineskip]
+$\sigma_3 = \{${ordered, shipped, delivered}\} \\[0.1\baselineskip]
+$\sigma_4 = \{${$\neg$ordered, $\neg$shipped, delivered}\} \\[0.1\baselineskip]
+$\sigma_5 = \{${$\neg$ordered, shipped, delivered}\} \\[0.1\baselineskip]
+$\sigma_6 = \{${ordered, $\neg$shipped, delivered}\} \\[0.1\baselineskip]
+$\sigma_7 = \{${$\neg$ordered, shipped, $\neg$delivered}\} \\[0.1\baselineskip]
+\end{center}
+
 The structure of the scenario is as follows:
 \begin{center}
-\textbf{initially} $\neg$\textit{received} \\[0.1\baselineskip]
-\textbf{initially} $\neg$\textit{packed} \\[0.1\baselineskip]
+\textbf{initially} $\neg$\textit{ordered} \\[0.1\baselineskip]
 \textbf{initially} $\neg$\textit{shipped} \\[0.1\baselineskip]
 \textbf{initially} $\neg$\textit{delivered} \\[0.1\baselineskip]
-\textbf{initially} \textit{empty} \\[0.5\baselineskip]
-\textit{Place} by \textit{Operator} \textbf{causes} \textit{received} \textbf{if} $\neg$\textit{received} \\[0.1\baselineskip]
-\textit{Pack} by \textit{Operator} \textbf{causes} \textit{packed} \textbf{if} \textit{received}, $\neg$\textit{packed} \\[0.1\baselineskip]
-\textit{Pack} by \textit{Courier} \textbf{causes} \textit{packed} \textbf{if} \textit{received}, $\neg$\textit{packed} \\[0.1\baselineskip]
-\textit{Pack} by \textit{Operator} \textbf{causes} $\neg$\textit{empty} \textbf{if} \textit{received}, $\neg$\textit{packed} \\[0.1\baselineskip]
-\textit{Pack} by \textit{Courier} \textbf{causes} $\neg$\textit{empty} \textbf{if} \textit{received}, $\neg$\textit{packed} \\[0.1\baselineskip]
-\textit{Ship} by \textit{Courier} \textbf{causes} \textit{shipped} \textbf{if} \textit{packed}, $\neg$\textit{shipped} \\[0.1\baselineskip]
-\textit{Deliver} by \textit{Courier} \textbf{causes} \textit{delivered} \textbf{if} \textit{shipped}, $\neg$\textit{delivered} \\[0.5\baselineskip]
+\textit{Purchase} by \textit{Buyer} \textbf{causes} \textit{ordered} \textbf{if} $\neg$\textit{ordered} $\neg$\textit{shipped} $\neg$\textit{delivered}\\[0.1\baselineskip]
+\textit{Ship} by \textit{Seller} \textbf{causes} \textit{shipped} \textbf{if} \textit{ordered}, $\neg$\textit{shipped} $\neg$\textit{delivered}\\[0.1\baselineskip]
+\textit{Deliver} by \textit{Seller} \textbf{causes} \textit{delivered} \textbf{if} \textit{shipped}, \textit{ordered}, $\neg$\textit{delivered} \\[0.5\baselineskip]
 \end{center}
 Hence, the following states are considered in this case: \\[0.5\baselineskip] 
-$\Psi((\text{Place},\text{Operator}),\sigma_0)$ = $\sigma_1$ \\[0.1\baselineskip] 
-$\Psi((\text{Place},\text{Courier}),\sigma_0)$ = $\sigma_0$ \\[0.1\baselineskip] 
-$\Psi((\text{Pack},\text{Operator}),\sigma_0)$ = $\sigma_0$ \\[0.1\baselineskip] 
-$\Psi((\text{Pack},\text{Courier}),\sigma_0)$ = $\sigma_0$ \\[0.1\baselineskip] 
-$\Psi((\text{Ship},\text{Operator}),\sigma_0)$ = $\sigma_0$ \\[0.1\baselineskip] 
-$\Psi((\text{Ship},\text{Courier}),\sigma_0)$ = $\sigma_0$ \\[0.1\baselineskip] 
-$\Psi((\text{Deliver}, \text{Operator}),\sigma_0)$ = $\sigma_0$ \\[0.1\baselineskip]
-$\Psi((\text{Deliver}, \text{Courier}),\sigma_0)$ = $\sigma_0$ \\[0.7\baselineskip]
-$\Psi((\text{Place},\text{Operator}),\sigma_1)$ = $\sigma_1$ \\[0.1\baselineskip] 
-$\Psi((\text{Place},\text{Courier}),\sigma_1)$ = $\sigma_1$ \\[0.1\baselineskip] 
-$\Psi((\text{Pack},\text{Courier}),\sigma_1)$ = $\sigma_2$ \\[0.1\baselineskip] 
-$\Psi((\text{Pack},\text{Operator}),\sigma_1)$ = $\sigma_2$ \\[0.1\baselineskip] 
-$\Psi((\text{Ship},\text{Operator}),\sigma_1)$ = $\sigma_1$ \\[0.1\baselineskip] 
-$\Psi((\text{Ship},\text{Courier}),\sigma_1)$ = $\sigma_1$ \\[0.1\baselineskip] 
-$\Psi((\text{Deliver},\text{Operator}),\sigma_1)$ = $\sigma_1$ \\[0.1\baselineskip] 
-$\Psi((\text{Deliver},\text{Courier}),\sigma_1)$ = $\sigma_1$ \\[0.7\baselineskip] 
-$\Psi((\text{Place},\text{Operator}),\sigma_2)$ = $\sigma_2$ \\[0.1\baselineskip] 
-$\Psi((\text{Place},\text{Courier}),\sigma_2)$ = $\sigma_2$ \\[0.1\baselineskip] 
-$\Psi((\text{Pack},\text{Operator}),\sigma_2)$ = $\sigma_2$ \\[0.1\baselineskip] 
-$\Psi((\text{Pack},\text{Courier}),\sigma_2)$ = $\sigma_2$ \\[0.1\baselineskip] 
-$\Psi((\text{Ship},\text{Courier}),\sigma_2)$ = $\sigma_3$ \\[0.1\baselineskip] 
-$\Psi((\text{Ship},\text{Operator}),\sigma_2)$ = $\sigma_2$ \\[0.1\baselineskip] 
-$\Psi((\text{Deliver},\text{Operator}),\sigma_2)$ = $\sigma_2$ \\[0.1\baselineskip] 
-$\Psi((\text{Deliver},\text{Courier}),\sigma_2)$ = $\sigma_2$ \\[0.7\baselineskip] 
-$\Psi((\text{Place},\text{Operator}),\sigma_3)$ = $\sigma_3$ \\[0.1\baselineskip] 
-$\Psi((\text{Place},\text{Courier}),\sigma_3)$ = $\sigma_3$ \\[0.1\baselineskip] 
-$\Psi((\text{Pack},\text{Operator}),\sigma_3)$ = $\sigma_3$ \\[0.1\baselineskip] 
-$\Psi((\text{Pack},\text{Courier}),\sigma_3)$ = $\sigma_3$ \\[0.1\baselineskip] 
-$\Psi((\text{Ship},\text{Courier}),\sigma_3)$ = $\sigma_3$ \\[0.1\baselineskip] 
-$\Psi((\text{Ship},\text{Operator}),\sigma_3)$ = $\sigma_3$ \\[0.1\baselineskip] 
-$\Psi((\text{Deliver},\text{Courier}),\sigma_3)$ = $\sigma_4$ \\[0.1\baselineskip] 
-$\Psi((\text{Deliver},\text{Operator}),\sigma_3)$ = $\sigma_3$ \\[0.7\baselineskip] 
-$\Psi((\text{Place},\text{Operator}),\sigma_4)$ = $\sigma_4$ \\[0.1\baselineskip] 
-$\Psi((\text{Place},\text{Courier}),\sigma_4)$ = $\sigma_4$ \\[0.1\baselineskip] 
-$\Psi((\text{Pack},\text{Operator}),\sigma_4)$ = $\sigma_4$ \\[0.1\baselineskip] 
-$\Psi((\text{Pack},\text{Courier}),\sigma_4)$ = $\sigma_4$ \\[0.1\baselineskip] 
-$\Psi((\text{Ship},\text{Operator}),\sigma_4)$ = $\sigma_4$ \\[0.1\baselineskip] 
-$\Psi((\text{Ship},\text{Courier}),\sigma_4)$ = $\sigma_4$ \\[0.1\baselineskip] 
-$\Psi((\text{Deliver},\text{Operator}),\sigma_4)$ = $\sigma_4$ \\[0.1\baselineskip] 
-$\Psi((\text{Deliver},\text{Courier}),\sigma_4)$ = $\sigma_4$ \\[0.7\baselineskip] 
+$\Psi((\text{Purchase},\text{Buyer}),\sigma_0)$ = $\sigma_1$ \\[0.1\baselineskip] 
+$\Psi((\text{Purchase},\text{Seller}),\sigma_0)$ = $\sigma_0$ \\[0.1\baselineskip] 
+$\Psi((\text{Ship},\text{Buyer}),\sigma_0)$ = $\sigma_0$ \\[0.1\baselineskip] 
+$\Psi((\text{Ship},\text{Seller}),\sigma_0)$ = $\sigma_0$ \\[0.1\baselineskip] 
+$\Psi((\text{Deliver}, \text{Buyer}),\sigma_0)$ = $\sigma_0$ \\[0.1\baselineskip]
+$\Psi((\text{Deliver}, \text{Seller}),\sigma_0)$ = $\sigma_0$ \\[0.7\baselineskip]
+$\Psi((\text{Purchase},\text{Buyer}),\sigma_1)$ = $\sigma_1$ \\[0.1\baselineskip] 
+$\Psi((\text{Purchase},\text{Seller}),\sigma_1)$ = $\sigma_1$ \\[0.1\baselineskip] 
+$\Psi((\text{Ship},\text{Buyer}),\sigma_1)$ = $\sigma_1$ \\[0.1\baselineskip] 
+$\Psi((\text{Ship},\text{Seller}),\sigma_1)$ = $\sigma_2$ \\[0.1\baselineskip] 
+$\Psi((\text{Deliver},\text{Buyer}),\sigma_1)$ = $\sigma_1$ \\[0.1\baselineskip] 
+$\Psi((\text{Deliver},\text{Seller}),\sigma_1)$ = $\sigma_1$ \\[0.7\baselineskip] 
+$\Psi((\text{Purchase},\text{Buyer}),\sigma_2)$ = $\sigma_2$ \\[0.1\baselineskip] 
+$\Psi((\text{Purchase},\text{Seller}),\sigma_2)$ = $\sigma_2$ \\[0.1\baselineskip] 
+$\Psi((\text{Ship},\text{Seller}),\sigma_2)$ = $\sigma_2$ \\[0.1\baselineskip] 
+$\Psi((\text{Ship},\text{Buyer}),\sigma_2)$ = $\sigma_2$ \\[0.1\baselineskip] 
+$\Psi((\text{Deliver},\text{Buyer}),\sigma_2)$ = $\sigma_2$ \\[0.1\baselineskip] 
+$\Psi((\text{Deliver},\text{Seller}),\sigma_2)$ = $\sigma_3$ \\[0.7\baselineskip] 
+$\Psi((\text{Purchase},\text{Buyer}),\sigma_3)$ = $\sigma_3$ \\[0.1\baselineskip] 
+$\Psi((\text{Purchase},\text{Seller}),\sigma_3)$ = $\sigma_3$ \\[0.1\baselineskip] 
+$\Psi((\text{Ship},\text{Buyer}),\sigma_3)$ = $\sigma_3$ \\[0.1\baselineskip] 
+$\Psi((\text{Ship},\text{Seller}),\sigma_3)$ = $\sigma_3$ \\[0.1\baselineskip] 
+$\Psi((\text{Deliver},\text{Buyer}),\sigma_3)$ = $\sigma_3$ \\[0.1\baselineskip] 
+$\Psi((\text{Deliver},\text{Seller}),\sigma_3)$ = $\sigma_3$ \\[0.7\baselineskip] 
+$\Psi((\text{Purchase},\text{Buyer}),\sigma_4)$ = $\sigma_4$ \\[0.1\baselineskip] 
+$\Psi((\text{Purchase},\text{Seller}),\sigma_4)$ = $\sigma_4$ \\[0.1\baselineskip] 
+$\Psi((\text{Ship},\text{Buyer}),\sigma_4)$ = $\sigma_4$ \\[0.1\baselineskip] 
+$\Psi((\text{Ship},\text{Seller}),\sigma_4)$ = $\sigma_4$ \\[0.1\baselineskip] 
+$\Psi((\text{Deliver},\text{Buyer}),\sigma_4)$ = $\sigma_4$ \\[0.1\baselineskip] 
+$\Psi((\text{Deliver},\text{Seller}),\sigma_4)$ = $\sigma_4$ \\[0.7\baselineskip] 
+$\Psi((\text{Purchase},\text{Buyer}),\sigma_5)$ = $\sigma_5$ \\[0.1\baselineskip] 
+$\Psi((\text{Purchase},\text{Seller}),\sigma_5)$ = $\sigma_5$ \\[0.1\baselineskip] 
+$\Psi((\text{Ship},\text{Buyer}),\sigma_5)$ = $\sigma_5$ \\[0.1\baselineskip] 
+$\Psi((\text{Ship},\text{Seller}),\sigma_5)$ = $\sigma_5$ \\[0.1\baselineskip] 
+$\Psi((\text{Deliver},\text{Buyer}),\sigma_5)$ = $\sigma_5$ \\[0.1\baselineskip] 
+$\Psi((\text{Deliver},\text{Seller}),\sigma_5)$ = $\sigma_5$ \\[0.7\baselineskip] 
+$\Psi((\text{Purchase},\text{Buyer}),\sigma_6)$ = $\sigma_6$ \\[0.1\baselineskip] 
+$\Psi((\text{Purchase},\text{Seller}),\sigma_6)$ = $\sigma_6$ \\[0.1\baselineskip] 
+$\Psi((\text{Ship},\text{Buyer}),\sigma_6)$ = $\sigma_6$ \\[0.1\baselineskip] 
+$\Psi((\text{Ship},\text{Seller}),\sigma_6)$ = $\sigma_6$ \\[0.1\baselineskip] 
+$\Psi((\text{Deliver},\text{Buyer}),\sigma_6)$ = $\sigma_6$ \\[0.1\baselineskip] 
+$\Psi((\text{Deliver},\text{Seller}),\sigma_6)$ = $\sigma_6$ \\[0.7\baselineskip] 
+$\Psi((\text{Purchase},\text{Buyer}),\sigma_7)$ = $\sigma_7$ \\[0.1\baselineskip] 
+$\Psi((\text{Purchase},\text{Seller}),\sigma_7)$ = $\sigma_7$ \\[0.1\baselineskip] 
+$\Psi((\text{Ship},\text{Buyer}),\sigma_7)$ = $\sigma_7$ \\[0.1\baselineskip] 
+$\Psi((\text{Ship},\text{Seller}),\sigma_7)$ = $\sigma_7$ \\[0.1\baselineskip] 
+$\Psi((\text{Deliver},\text{Buyer}),\sigma_7)$ = $\sigma_7$ \\[0.1\baselineskip] 
+$\Psi((\text{Deliver},\text{Seller}),\sigma_7)$ = $\sigma_7$ \\[0.7\baselineskip] 
 Figure~\ref{fig:shipping_transitions} outlines all of the aforementioned transitions.
 \begin{figure}[H]
     \centering
-    \includegraphics[width=0.75\linewidth]{ShiporderAutomata.drawio.png}
+    \includegraphics[width=1\linewidth]{onlinestore.png}
     \caption{Shipping orders - all possible transitions}
     \label{fig:shipping_transitions}
 \end{figure}
 Let us demonstrate an example of asking queries using the structure of the query language $\mathcal{QL_{CST}}$. 
-Assume, that the initial state is $\sigma_0$ and the program $\mathcal{P}$ = ((\textit{Place}, \textit{Operator}), (\textit{Operator}), (\textit{Pack}, \textit{Operator}), (\textit{Ship},\textit{Operator}), (\textit{Deliver}, \textit{Courier}).
+Assume, that the initial state is $\sigma_0$ and the program $\mathcal{P}$ = ((\textit{Purchase}, \textit{Buyer}),(\textit{Ship}, \textit{Seller}), (\textit{Deliver}, \textit{Seller}).
 Let us consider the following query statements:
 \begin{enumerate}
-  \item $\neg$\textit{delivered} \textbf{after} ((\textit{Place}, \textit{Operator}), (\textit{Operator}), (\textit{Pack}, \textit{Operator}), (\textit{Ship},\textit{Operator}), (\textit{Deliver}, \textit{Courier}))
-  \item \textbf{Active} Courier \textbf{in} ((\textit{Place}, \textit{Operator}), (\textit{Operator}), (\textit{Pack}, \textit{Operator}), (\textit{Ship},\textit{Operator}), (\textit{Deliver}, \textit{Courier}))
+  \item $\neg$\textit{delivered} \textbf{after} ((\textit{Purchase}, \textit{Buyer}),(\textit{Ship}, \textit{Seller}), (\textit{Deliver}, \textit{Seller})).
+  \item \textbf{Active} Seller \textbf{in} ((\textit{Purchase}, \textit{Buyer}),(\textit{Ship}, \textit{Seller}), (\textit{Deliver}, \textit{Seller})).
 \end{enumerate}
 The program execution will consist of the following transitions: \\[0.5\baselineskip]
-$\Psi((\text{Place},Operator),\sigma_0)$ = $\sigma_1$ \\[0.1\baselineskip]
-$\Psi((\text{Pack},Operator),\sigma_1)$ = $\sigma_2$ \\[0.1\baselineskip]
-$\Psi((\text{Ship},Operator),\sigma_2)$ = $\sigma_2$ \\[0.1\baselineskip]
-$\Psi((\text{Deliver},Courier),\sigma_2)$ = $\sigma_2$ \\[0.7\baselineskip]
-As it can be observed, after the program execution, the state $\sigma_2$ will hold. Due to that, query number one will retrieve a postive response (i.e. \textit{true}), 
-as in the final state $\neg$\textit{delivered} holds. 
-On the other hand, the second query will respond with \textit{false} as the only action performed by Agent \textit{Courier} did not changed the state of $\sigma_2$.
-\subsubsection{Preparing for holidays}
-A family is preparing for the holidays. Due to the fact that they are traveling by plane, there is a limit on the weight of their luggage. In this regard, packing the next item is associated with some arbitrary cost corresponding to its weight. It is assumed that all necessary items have been packed by the family, and there is still some space available in the luggage. Due to this, they decided to take some additional equipment that would make their trip more entertaining. They considered a laptop, books, or sports equipment. When taking the laptop, the family must also take the charger. It is assumed that initially, the luggage is empty.
-Following, are the states considered in the system $\Sigma = \{{\sigma_0, \sigma_1, \sigma_2, \sigma_3, \sigma_4, \sigma_5, \sigma_6, \sigma_7, \sigma_8, \sigma_9\}}$, where:
-\begin{center}
-$\sigma_0$ = \{$\neg$has laptop, $\neg$has charger, $\neg$has books, $\neg$has sports equipment\} \\[0.1\baselineskip]
-$\sigma_1$ = \{$\neg$has laptop, has charger, $\neg$has books, $\neg$has sports equipment\} \\[0.1\baselineskip]
-$\sigma_2$ = \{$\neg$has laptop, has charger, has books, $\neg$has sports equipment\} \\[0.1\baselineskip]
-$\sigma_3$ = \{$\neg$has laptop, has charger, $\neg$has books, has sports equipment\} \\[0.1\baselineskip]
-$\sigma_4$ = \{has laptop, has charger, $\neg$has books, $\neg$has sports equipment\} \\[0.1\baselineskip]
-$\sigma_5$ = \{has laptop, has charger, has books, $\neg$has sports equipment\} \\[0.1\baselineskip]
-$\sigma_6$ = \{has laptop, has charger, $\neg$has books, has sports equipment\} \\[0.1\baselineskip]
-$\sigma_7$ = \{has laptop, has charger, has books, has sports equipment\} \\[0.1\baselineskip]
-$\sigma_8$ = \{$\neg$has laptop, $\neg$has charger, has books, $\neg$has sports equipment\} \\[0.1\baselineskip]
-$\sigma_9$ = \{$\neg$has laptop, $\neg$has charger, has books, has sports equipment\} \\[0.1\baselineskip]
-$\sigma_{10}$ = \{$\neg$has laptop, has charger, has books, has sports equipment\} \\[0.1\baselineskip]
-$\sigma_{11}$ = \{$\neg$has laptop, $\neg$has charger, $\neg$has books, has sports equipment\} \\[0.1\baselineskip]
-\end{center}
-Furthermore, the actions that were taken into account are:
+$\Psi((\text{Purchase},Buyer),\sigma_0)$ = $\sigma_1$ \\[0.1\baselineskip]
+$\Psi((\text{Ship},Seller),\sigma_1)$ = $\sigma_2$ \\[0.1\baselineskip]
+$\Psi((\text{Deliver},Seller),\sigma_2)$ = $\sigma_3$ \\[0.7\baselineskip]
+As it can be observed, after the program execution, the state $\sigma_3$ will hold. Due to that, query number one will retrieve a negative response (i.e. \textit{false}), 
+as in the final state \textit{delivered} holds. 
+On the other hand, the second query will respond with \textit{true} as  action performed by Agent \textit{Seller} did changed the state of $\sigma_1$ into $\sigma_2$ and the $\sigma_2$ into $\sigma_3$.
+\subsubsection{Coffee Order Scenario}
+In this scenario, the status of the order can be describe by the following fluents: received, brewed, and served. 
+Initially the order is not received, the coffee is not brewed, and is not served. 
+There will be 3 actions that can be executed: receive order, brew and serve. 
+Receive order makes it received, brew an order makes it brewed, and serve makes it served the order. 
+Each of those aforementioned actions has associated agent attached in case the initial conditions performing a specific action are met.
+\\\\
+\begin{tabular}{|l|c|r|}
+\hline
+\textbf{Fluent} & \textbf{literal} & \textbf{nagation} \\ \hline
+$f_1$ & Received & $\neg$Received \\
+$f_2$ & Brewed & $\neg$Brewed \\
+$f_3$ & Served & $\neg$Served \\ \hline
+\end{tabular} \\\\
+Actions are defined as:
 \begin{enumerate}
-    \item Pack laptop
-    \item Pack books
-    \item Pack sports equipment
-    \item Pack charger
+  \item Receive Order
+  \item Brew
+  \item Serve
 \end{enumerate}
-The system structure is described in the following way:
-\begin{center}
-    \textbf{initially} $\neg$\textit{has laptop} \\[0.1\baselineskip]
-    \textbf{initially} $\neg$\textit{has charger} \\[0.1\baselineskip]
-    \textbf{initially} $\neg$\textit{has books} \\[0.1\baselineskip]
-    \textbf{initially} $\neg$\textit{has sports equipment} \\[0.1\baselineskip]
-    \textit{Pack laptop} \textbf{causes} \textit{has laptop} \textbf{if} $\neg$\textit{has laptop}, \textit{has charger} \textbf{cost} 10 \\[0.1\baselineskip]
-    \textit{Pack charger} \textbf{causes} \textit{has charger}  \textbf{if} $\neg$\textit{has charger} \textbf{cost} 5 \\[0.1\baselineskip]
-    \textit{Pack books} \textbf{causes} \textit{has books} \textbf{if} $\neg$\textit{has books} \textbf{cost} 15 \\[0.1\baselineskip]
-    \textit{Pack sports equipment} \textbf{causes} \textit{has sports equipment} \textbf{if} $\neg$\textit{has sports equipment} \textbf{cost} 30 \\[0.1\baselineskip]
-\end{center}
-Hence, let us list all possible transitions: \\[0.5\baselineskip] 
-$\Psi((\text{Pack laptop},10),\sigma_0)$ = $\sigma_0$ \\[0.1\baselineskip] 
-$\Psi((\text{Pack charger},5),\sigma_0)$ = $\sigma_1$ \\[0.1\baselineskip] 
-$\Psi((\text{Pack books},15),\sigma_0)$ = $\sigma_8$ \\[0.1\baselineskip] 
-$\Psi((\text{Pack sports equipment},30),\sigma_0)$ = $\sigma_{11}$ \\[0.7\baselineskip]
-$\Psi((\text{Pack laptop},10),\sigma_1)$ = $\sigma_4$ \\[0.1\baselineskip] 
-$\Psi((\text{Pack charger},5),\sigma_1)$ = $\sigma_1$ \\[0.1\baselineskip] 
-$\Psi((\text{Pack books},15),\sigma_1)$ = $\sigma_2$ \\[0.1\baselineskip] 
-$\Psi((\text{Pack sports equipment},30),\sigma_1)$ = $\sigma_3$ \\[0.7\baselineskip]
-$\Psi((\text{Pack laptop},10),\sigma_2)$ = $\sigma_5$ \\[0.1\baselineskip] 
-$\Psi((\text{Pack charger},5),\sigma_2)$ = $\sigma_2$ \\[0.1\baselineskip] 
-$\Psi((\text{Pack books},15),\sigma_2)$ = $\sigma_2$ \\[0.1\baselineskip] 
-$\Psi((\text{Pack sports equipment},30),\sigma_2)$ = $\sigma_{10}$ \\[0.7\baselineskip]
-$\Psi((\text{Pack laptop},10),\sigma_3)$ = $\sigma_6$ \\[0.1\baselineskip] 
-$\Psi((\text{Pack charger},5),\sigma_3)$ = $\sigma_3$ \\[0.1\baselineskip] 
-$\Psi((\text{Pack books},15),\sigma_3)$ = $\sigma_{10}$ \\[0.1\baselineskip] 
-$\Psi((\text{Pack sports equipment},30),\sigma_3)$ = $\sigma_3$ \\[0.7\baselineskip]
-$\Psi((\text{Pack laptop},10),\sigma_4)$ = $\sigma_4$ \\[0.1\baselineskip] 
-$\Psi((\text{Pack charger},5),\sigma_4)$ = $\sigma_4$ \\[0.1\baselineskip] 
-$\Psi((\text{Pack books},15),\sigma_4)$ = $\sigma_5$ \\[0.1\baselineskip] 
-$\Psi((\text{Pack sports equipment},30),\sigma_4)$ = $\sigma_6$ \\[0.7\baselineskip]
-$\Psi((\text{Pack laptop},10),\sigma_5)$ = $\sigma_5$ \\[0.1\baselineskip] 
-$\Psi((\text{Pack charger},5),\sigma_5)$ = $\sigma_5$ \\[0.1\baselineskip] 
-$\Psi((\text{Pack books},15),\sigma_5)$ = $\sigma_5$ \\[0.1\baselineskip] 
-$\Psi((\text{Pack sports equipment},30),\sigma_5)$ = $\sigma_7$ \\[0.7\baselineskip]
-$\Psi((\text{Pack laptop},10),\sigma_6)$ = $\sigma_6$ \\[0.1\baselineskip] 
-$\Psi((\text{Pack charger},5),\sigma_6)$ = $\sigma_6$ \\[0.1\baselineskip] 
-$\Psi((\text{Pack books},15),\sigma_6)$ = $\sigma_7$ \\[0.1\baselineskip] 
-$\Psi((\text{Pack sports equipment},30),\sigma_6)$ = $\sigma_6$ \\[0.7\baselineskip]
-$\Psi((\text{Pack laptop},10),\sigma_7)$ = $\sigma_7$ \\[0.1\baselineskip] 
-$\Psi((\text{Pack charger},5),\sigma_7)$ = $\sigma_7$ \\[0.1\baselineskip] 
-$\Psi((\text{Pack books},15),\sigma_7)$ = $\sigma_7$ \\[0.1\baselineskip] 
-$\Psi((\text{Pack sports equipment},30),\sigma_7)$ = $\sigma_7$ \\[0.7\baselineskip]
-$\Psi((\text{Pack laptop},10),\sigma_8)$ = $\sigma_8$ \\[0.1\baselineskip] 
-$\Psi((\text{Pack charger},5),\sigma_8)$ = $\sigma_2$ \\[0.1\baselineskip] 
-$\Psi((\text{Pack books},15),\sigma_8)$ = $\sigma_8$ \\[0.1\baselineskip] 
-$\Psi((\text{Pack sports equipment},30),\sigma_8)$ = $\sigma_9$ \\[0.7\baselineskip]
-$\Psi((\text{Pack laptop},10),\sigma_9)$ = $\sigma_9$ \\[0.1\baselineskip] 
-$\Psi((\text{Pack charger},5),\sigma_9)$ = $\sigma_{10}$ \\[0.1\baselineskip] 
-$\Psi((\text{Pack books},15),\sigma_9)$ = $\sigma_9$ \\[0.1\baselineskip] 
-$\Psi((\text{Pack sports equipment},30),\sigma_9)$ = $\sigma_9$ \\[0.7\baselineskip]
-$\Psi((\text{Pack laptop},10),\sigma_{10})$ = $\sigma_7$ \\[0.1\baselineskip] 
-$\Psi((\text{Pack charger},5),\sigma_{10})$ = $\sigma_{10}$ \\[0.1\baselineskip] 
-$\Psi((\text{Pack books},15),\sigma_{10})$ = $\sigma_{10}$ \\[0.1\baselineskip] 
-$\Psi((\text{Pack sports equipment},30),\sigma_{10})$ = $\sigma_{10}$ \\[0.7\baselineskip]
-$\Psi((\text{Pack laptop},10),\sigma_{11})$ = $\sigma_{11}$ \\[0.1\baselineskip] 
-$\Psi((\text{Pack charger},5),\sigma_{11})$ = $\sigma_3$ \\[0.1\baselineskip] 
-$\Psi((\text{Pack books},15),\sigma_{11})$ = $\sigma_9$ \\[0.1\baselineskip] 
-$\Psi((\text{Pack sports equipment},30),\sigma_{11})$ = $\sigma_{10}$ \\[0.7\baselineskip]
-The above transitions are presented in Figure~\ref{fig:holidays_transitions}.
-Finally, let us demonstrate queries for the above example. Assume, that the initial state is $\sigma_0$ and the program $\mathcal{P}$ = (\textit{Pack sports equipment}, \textit{Pack books}, \textit{Pack laptop}). Let us consider the following query statements:
+Agents:
 \begin{enumerate}
-    \item \textit{has laptop} \textbf{after} (\textit{Pack sports equipment}, \textit{Pack books}, \textit{Pack laptop})
-    \item \textbf{sufficient} 40 \textbf{in} (\textit{Pack sports equipment}, \textit{Pack books}, \textit{Pack laptop})
+  \item \textbf{Cashier}: Can only perform action: \textbf{Receive Order}
+  \item \textbf{Barista}: Can only perform action: \textbf{Brew} and \textbf{Serve}
+\end{enumerate}
+Agents perform undefined actions will have no effect.
+The set of all considered states in this scenario is defined as: \\\\
+$\Sigma = \{{\sigma_0, \sigma_1, \sigma_2, \sigma_3, \sigma_4, \sigma_5, \sigma_6, \sigma_7\}}$, where:
+\begin{center}
+$\sigma_0 = \{${$\neg$received, $\neg$brewed, $\neg$served}\} \\[0.1\baselineskip]
+$\sigma_1 = \{${received, $\neg$brewed, $\neg$served}\} \\[0.1\baselineskip]
+$\sigma_2 = \{${received, brewed, $\neg$served}\} \\[0.1\baselineskip]
+$\sigma_3 = \{${received, brewed, served}\} \\[0.1\baselineskip]
+$\sigma_4 = \{${$\neg$received, $\neg$brewed, served}\} \\[0.1\baselineskip]
+$\sigma_5 = \{${$\neg$received, brewed, served}\} \\[0.1\baselineskip]
+$\sigma_6 = \{${received, $\neg$brewed, served}\} \\[0.1\baselineskip]
+$\sigma_7 = \{${$\neg$received, brewed, $\neg$served}\} \\[0.1\baselineskip]
+\end{center}
+
+The structure of the scenario is as follows:
+\begin{center}
+\textbf{initially} $\neg$\textit{received} \\[0.1\baselineskip]
+\textbf{initially} $\neg$\textit{brewed} \\[0.1\baselineskip]
+\textbf{initially} $\neg$\textit{served} \\[0.1\baselineskip]
+\textit{Receive Order} by \textit{Cashier} \textbf{causes} \textit{received} \textbf{if} $\neg$\textit{received} $\neg$\textit{brewed} $\neg$\textit{served}\\[0.1\baselineskip]
+\textit{Brew} by \textit{Barista} \textbf{causes} \textit{brewed} \textbf{if} \textit{received}, $\neg$\textit{brewed} $\neg$\textit{served}\\[0.1\baselineskip]
+\textit{Serve} by \textit{Barista} \textbf{causes} \textit{served} \textbf{if} \textit{received}, \textit{brewed}, $\neg$\textit{served} \\[0.5\baselineskip]
+\end{center}
+Hence, the following states are considered in this case: \\[0.5\baselineskip] 
+$\Psi((\text{Receive Order},\text{Cashier}),\sigma_0)$ = $\sigma_1$ \\[0.1\baselineskip] 
+$\Psi((\text{Receive Order},\text{Barista}),\sigma_0)$ = $\sigma_0$ \\[0.1\baselineskip] 
+$\Psi((\text{Brew},\text{Cashier}),\sigma_0)$ = $\sigma_0$ \\[0.1\baselineskip] 
+$\Psi((\text{Brew},\text{Barista}),\sigma_0)$ = $\sigma_0$ \\[0.1\baselineskip] 
+$\Psi((\text{Serve}, \text{Cashier}),\sigma_0)$ = $\sigma_0$ \\[0.1\baselineskip]
+$\Psi((\text{Serve}, \text{Barista}),\sigma_0)$ = $\sigma_0$ \\[0.7\baselineskip]
+$\Psi((\text{Receive Order},\text{Cashier}),\sigma_1)$ = $\sigma_1$ \\[0.1\baselineskip] 
+$\Psi((\text{Receive Order},\text{Barista}),\sigma_1)$ = $\sigma_1$ \\[0.1\baselineskip] 
+$\Psi((\text{Brew},\text{Cashier}),\sigma_1)$ = $\sigma_1$ \\[0.1\baselineskip] 
+$\Psi((\text{Brew},\text{Barista}),\sigma_1)$ = $\sigma_2$ \\[0.1\baselineskip] 
+$\Psi((\text{Serve},\text{Cashier}),\sigma_1)$ = $\sigma_1$ \\[0.1\baselineskip] 
+$\Psi((\text{Serve},\text{Barista}),\sigma_1)$ = $\sigma_1$ \\[0.7\baselineskip] 
+$\Psi((\text{Receive Order},\text{Cashier}),\sigma_2)$ = $\sigma_2$ \\[0.1\baselineskip] 
+$\Psi((\text{Receive Order},\text{Barista}),\sigma_2)$ = $\sigma_2$ \\[0.1\baselineskip] 
+$\Psi((\text{Brew},\text{Cashier}),\sigma_2)$ = $\sigma_2$ \\[0.1\baselineskip] 
+$\Psi((\text{Brew},\text{Barista}),\sigma_2)$ = $\sigma_2$ \\[0.1\baselineskip] 
+$\Psi((\text{Serve},\text{Cashier}),\sigma_2)$ = $\sigma_2$ \\[0.1\baselineskip] 
+$\Psi((\text{Serve},\text{Barista}),\sigma_2)$ = $\sigma_3$ \\[0.7\baselineskip] 
+$\Psi((\text{Receive Order},\text{Cashier}),\sigma_3)$ = $\sigma_3$ \\[0.1\baselineskip] 
+$\Psi((\text{Receive Order},\text{Barista}),\sigma_3)$ = $\sigma_3$ \\[0.1\baselineskip] 
+$\Psi((\text{Brew},\text{Cashier}),\sigma_3)$ = $\sigma_3$ \\[0.1\baselineskip] 
+$\Psi((\text{Brew},\text{Barista}),\sigma_3)$ = $\sigma_3$ \\[0.1\baselineskip] 
+$\Psi((\text{Serve},\text{Cashier}),\sigma_3)$ = $\sigma_3$ \\[0.1\baselineskip] 
+$\Psi((\text{Serve},\text{Barista}),\sigma_3)$ = $\sigma_3$ \\[0.7\baselineskip] 
+$\Psi((\text{Receive Order},\text{Cashier}),\sigma_4)$ = $\sigma_4$ \\[0.1\baselineskip] 
+$\Psi((\text{Receive Order},\text{Barista}),\sigma_4)$ = $\sigma_4$ \\[0.1\baselineskip] 
+$\Psi((\text{Brew},\text{Cashier}),\sigma_4)$ = $\sigma_4$ \\[0.1\baselineskip] 
+$\Psi((\text{Brew},\text{Barista}),\sigma_4)$ = $\sigma_4$ \\[0.1\baselineskip] 
+$\Psi((\text{Serve},\text{Cashier}),\sigma_4)$ = $\sigma_4$ \\[0.1\baselineskip] 
+$\Psi((\text{Serve},\text{Barista}),\sigma_4)$ = $\sigma_4$ \\[0.7\baselineskip] 
+$\Psi((\text{Receive Order},\text{Cashier}),\sigma_5)$ = $\sigma_5$ \\[0.1\baselineskip] 
+$\Psi((\text{Receive Order},\text{Barista}),\sigma_5)$ = $\sigma_5$ \\[0.1\baselineskip] 
+$\Psi((\text{Brew},\text{Cashier}),\sigma_5)$ = $\sigma_5$ \\[0.1\baselineskip] 
+$\Psi((\text{Brew},\text{Barista}),\sigma_5)$ = $\sigma_5$ \\[0.1\baselineskip] 
+$\Psi((\text{Serve},\text{Cashier}),\sigma_5)$ = $\sigma_5$ \\[0.1\baselineskip] 
+$\Psi((\text{Serve},\text{Barista}),\sigma_5)$ = $\sigma_5$ \\[0.7\baselineskip] 
+$\Psi((\text{Receive Order},\text{Cashier}),\sigma_6)$ = $\sigma_6$ \\[0.1\baselineskip] 
+$\Psi((\text{Receive Order},\text{Barista}),\sigma_6)$ = $\sigma_6$ \\[0.1\baselineskip] 
+$\Psi((\text{Brew},\text{Cashier}),\sigma_6)$ = $\sigma_6$ \\[0.1\baselineskip] 
+$\Psi((\text{Brew},\text{Barista}),\sigma_6)$ = $\sigma_6$ \\[0.1\baselineskip] 
+$\Psi((\text{Serve},\text{Cashier}),\sigma_6)$ = $\sigma_6$ \\[0.1\baselineskip] 
+$\Psi((\text{Serve},\text{Barista}),\sigma_6)$ = $\sigma_6$ \\[0.7\baselineskip] 
+$\Psi((\text{Receive Order},\text{Cashier}),\sigma_7)$ = $\sigma_7$ \\[0.1\baselineskip] 
+$\Psi((\text{Receive Order},\text{Barista}),\sigma_7)$ = $\sigma_7$ \\[0.1\baselineskip] 
+$\Psi((\text{Brew},\text{Cashier}),\sigma_7)$ = $\sigma_7$ \\[0.1\baselineskip] 
+$\Psi((\text{Brew},\text{Barista}),\sigma_7)$ = $\sigma_7$ \\[0.1\baselineskip] 
+$\Psi((\text{Serve},\text{Cashier}),\sigma_7)$ = $\sigma_7$ \\[0.1\baselineskip] 
+$\Psi((\text{Serve},\text{Barista}),\sigma_7)$ = $\sigma_7$ \\[0.7\baselineskip] 
+Figure~\ref{fig:coffee_order_transactions} outlines all of the aforementioned transitions.
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=1\linewidth]{coffeshop.png}
+    \caption{Coffee orders - all possible transitions}
+    \label{fig:coffee_order_transactions}
+\end{figure}
+Let us demonstrate an example of asking queries using the structure of the query language $\mathcal{QL_{CST}}$. 
+Assume, that the initial state is $\sigma_0$ and the program $\mathcal{P}$ = ((\textit{Receive Order}, \textit{Cashier}),(\textit{Brew}, \textit{Barista}), (\textit{Serve}, \textit{Barista})).
+Let us consider the following query statements:
+\begin{enumerate}
+  \item \textit{served} \textbf{after} ((\textit{Receive Order}, \textit{Cashier}),(\textit{Brew}, \textit{Barista}), (\textit{Serve}, \textit{Barista})).
+  \item \textbf{Active} Cashier \textbf{in} ((\textit{Receive Order}, \textit{Cashier}),(\textit{Brew}, \textit{Barista}), (\textit{Serve}, \textit{Barista})).
 \end{enumerate}
 The program execution will consist of the following transitions: \\[0.5\baselineskip]
-$\Psi((\text{Pack sports equipment},30),\sigma_0)$ = $\sigma_{11}$ \\[0.1\baselineskip]
-$\Psi((\text{Pack books},15),\sigma_{11})$ = $\sigma_9$ \\[0.1\baselineskip]
-$\Psi((\text{Pack laptop},10),\sigma_9)$ = $\sigma_9$ \\[0.5\baselineskip]
-It can be noted that the last transition is associated with a cost 10 although the state doesn't change. Due to the fact that preconditions that are required to successfully execute the \emph{Pack laptop} action are not met, the action has empty effects. After the program execution, the last state is, therefore, $\sigma_9$. Hence, the response of the first query will be \textit{false}. The response to the second query will also be \textit{false}, as the total cost of the program execution is 55 which is greater than 40.
+$\Psi((\text{Receive Order},Cashier),\sigma_0)$ = $\sigma_1$ \\[0.1\baselineskip]
+$\Psi((\text{Brew}, Barista),\sigma_1)$ = $\sigma_2$ \\[0.1\baselineskip]
+$\Psi((\text{Serve},Barista),\sigma_2)$ = $\sigma_3$ \\[0.7\baselineskip]
+As it can be observed, after the program execution, the state $\sigma_3$ will hold. Due to that, query number one will retrieve a positive response (i.e. \textit{true}), 
+as in the final state \textit{served} holds. 
+On the other hand, the second query will respond with \textit{true} as  action performed by Agent \textit{Cashier} did changed the state of $\sigma_0$ into $\sigma_1$.
+\section{Individual contribution}
+
+\begin{enumerate}
+    \item \textbf{Jianhao Luo} -- Theoretical part: 70\%  Example part: 30\%
+    \item \textbf{Dmytro Narepekha} -- Theoretical part: 60\%  Example part:  40\%
+    \item \textbf{Sabrila Trifebi Shina} -- Theoretical part: 50\%  Example part: 50\%
+    \item \textbf{Suzzane Abiri} -- Theoretical part: 50\%  Example part: 50\%
+\end{enumerate}
 \end{document}
